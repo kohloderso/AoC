@@ -40,11 +40,26 @@ fun parseRPC(name: String): List<Pair<Int, Int>> {
                 "Z" -> 3
                 else -> -1
             }
-
         Pair(opponent, self)
     }
     return result
 }
+
+fun parseRucksack(name: String): List<Pair<String, String>> {
+    val lines = File("src/input", "$name.txt").readLines()
+    val result = lines.map{ line ->
+        val n = line.length
+        check(n % 2 == 0)
+        val first = line.take(n/2)
+        val second = line.drop(n/2)
+        Pair(first, second)
+    }
+    return result
+}
+
+fun parseLines(name: String) =
+    File("src/input", "$name.txt").readLines()
+
 
 /**
  * Converts string to md5 hash.
