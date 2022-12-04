@@ -60,6 +60,17 @@ fun parseRucksack(name: String): List<Pair<String, String>> {
 fun parseLines(name: String) =
     File("src/input", "$name.txt").readLines()
 
+fun parseSectionPairs(name: String): List<Pair<IntRange, IntRange>> {
+    val lines = File("src/input", "$name.txt").readLines()
+    val result = lines.map { line ->
+        val vals = line.split(',')
+        val first = vals[0].split('-')
+        val second = vals[1].split('-')
+        Pair(first[0].toInt()..first[1].toInt(), second[0].toInt()..second[1].toInt())
+    }
+    return result
+}
+
 
 /**
  * Converts string to md5 hash.
