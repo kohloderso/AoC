@@ -1,26 +1,25 @@
 import java.io.BufferedReader
 import java.io.File
 import java.io.FileReader
-import java.math.BigInteger
-import java.security.MessageDigest
 
-/**
- * Reads lines from the given input txt file.
- */
-fun readInputChunks(name: String): List<List<Int>> {
+
+fun parseChunks(name: String): List<List<String>> {
     val file = File("src/input", "$name.txt")
-    val result = mutableListOf(mutableListOf<Int>())
+    val result = mutableListOf(mutableListOf<String>())
     BufferedReader(FileReader(file)).use { br ->
         for (line in br.lines()) {
             if (line.isEmpty()) {
                 result.add(mutableListOf())
             } else {
-                result.last().add(line.toInt())
+                result.last().add(line)
             }
         }
     }
     return result
 }
+
+fun parseIntChunks(name: String) =
+    parseChunks(name).map { it.map { line -> line.toInt() } }
 
 fun parseRPC(name: String): List<Pair<Int, Int>> {
     val lines = File("src/input", "$name.txt").readLines()
@@ -70,11 +69,3 @@ fun parseSectionPairs(name: String): List<Pair<IntRange, IntRange>> {
     }
     return result
 }
-
-
-/**
- * Converts string to md5 hash.
- */
-fun String.md5() = BigInteger(1, MessageDigest.getInstance("MD5").digest(toByteArray()))
-    .toString(16)
-    .padStart(32, '0')

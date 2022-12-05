@@ -29,7 +29,7 @@ fun main() {
 
     //check(part2(testInput) == 45000)
 
-    val input = readInputChunks("Day01")
+    val input = parseIntChunks("Day01")
     //println(part1(input))
     println(part2(input))
 }
