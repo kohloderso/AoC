@@ -27,7 +27,7 @@ fun main() {
             sum + scoreRound(round.first, self)}
     }
 
-    // test if implementation meets criteria from the description, like:
+
     val testInput = parseRPC("Day02_test")
 
 

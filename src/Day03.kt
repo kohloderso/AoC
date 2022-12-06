@@ -30,14 +30,6 @@ fun main() {
     }
 
 
-
-//    fun part2(input: List<Pair<Int, Int>>): Int {
-//        return input.fold(0) {sum, round ->
-//            val self = determineRPC(round.first, round.second)
-//            sum + scoreRound(round.first, self)}
-//    }
-
-    // test if implementation meets criteria from the description, like:
     val testInput = parseLines("Day03_test")
     check(checkRucksack(Pair("abL", "dLfC")) == 38)
 

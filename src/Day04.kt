@@ -14,7 +14,7 @@ fun main() {
         return containedRanges.size
     }
 
-    // test if implementation meets criteria from the description, like:
+
     val testInput = parseSectionPairs("Day04_test")
     println(testInput)
 

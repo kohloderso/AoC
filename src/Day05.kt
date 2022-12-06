@@ -56,7 +56,7 @@ fun main() {
     }
 
     val input = parseChunks("Day05")
-    val crates  = parseCrates(input[0].dropLast(1), input[0].last())
+    val crates = parseCrates(input[0].dropLast(1), input[0].last())
     val moves = parseMoves(input[1])
 
     val result = part2(moves, crates)
