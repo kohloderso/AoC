@@ -50,7 +50,6 @@ fun main() {
             }
             if (readLSResult) {
                 commands.add(LS(result))
-                readLSResult = false
             }
         }
         return commands
@@ -69,11 +68,12 @@ fun main() {
         return result
     }
 
-    fun buildDirectories(commands: List<Command>): Item {
-        // find starting point
+    fun buildDirectories(commands: List<Command>): Set<Item> {
+        // find starting point - overkill for given input
         val idRootLS = commands.withIndex().first { it.value is CD_ROOT  && commands[it.index+1] is LS}.index
         val root = Item("/", mutableListOf(), 0, null)
         var currentDir = root
+        val allItems: MutableSet<Item> = mutableSetOf(root)
         for (cmd in commands.drop(idRootLS+1)) {
             when (cmd) {
                 is CD_OUT -> currentDir = currentDir.parent!!
@@ -81,6 +81,7 @@ fun main() {
                 is LS ->
                     if (currentDir.children.isNullOrEmpty()) {
                         currentDir.children = parseLSResult(cmd.result, currentDir)
+                        allItems.addAll(currentDir.children!!)
                     }
 
                 is CD -> {
@@ -90,47 +91,33 @@ fun main() {
                         val next = Item(cmd.argument, mutableListOf(), 0, currentDir)
                         currentDir.addChild(next)
                         currentDir = next
+                        allItems.add(next)
                     }
                 }
             }
         }
-        return root
+        return allItems
     }
 
-    fun part1(root: Item): Int {
-        var items: MutableSet<Item> = mutableSetOf(root)
-        var considered: MutableSet<Item> = mutableSetOf()
-        while((items - considered).isNotEmpty()) {
-            for(item in (items - considered)) {
-                considered.add(item)
-                items.addAll(item.children?.filter {it.isDir} ?: emptySet())
-            }
-        }
-        val sum = items.sumOf { item ->
+    fun part1(items: Set<Item>): Int {
+        val sum = items.filter {it.isDir}.sumOf { item ->
             val size = item.getSize()
             if(size <= 100000) size else 0
         }
         return sum
     }
 
-    fun part2(root: Item): Int  {
+    fun part2(items: Set<Item>): Int  {
+        val root = items.find { it.id == "/" }
         val totalSpace = 70000000
-        val unusedSpace = totalSpace - root.getSize()
+        val unusedSpace = totalSpace - root!!.getSize()
         val neededSpace = 30000000 - unusedSpace
-        var items: MutableSet<Item> = mutableSetOf(root)
-        var considered: MutableSet<Item> = mutableSetOf()
-        while((items - considered).isNotEmpty()) {
-            for(item in (items - considered)) {
-                considered.add(item)
-                items.addAll(item.children?.filter {it.isDir} ?: emptySet())
-            }
-        }
-        val dir = items.filter { it.getSize() >= neededSpace }.minBy { it.getSize()}
+        val dir = items.filter { it.isDir && it.getSize() >= neededSpace }.minBy { it.getSize()}
         return dir.getSize()
     }
 
-    val commands = parseCommands("Day07")
-    val root = buildDirectories(commands)
-    println(part1(root))
-    println(part2(root))
+    val commands = parseCommands("Day07_test")
+    val items = buildDirectories(commands)
+    println(part1(items))
+    println(part2(items))
 }
