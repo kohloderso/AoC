@@ -2,7 +2,8 @@ import kotlin.Float.Companion.POSITIVE_INFINITY
 
 fun main() {
 
-    class Node(val value: Int, val posX: Int, val posY: Int, var dist:Float = POSITIVE_INFINITY, var predecessor: Node? = null)
+    class Node(val posX: Int, val posY: Int, var dist:Float = POSITIVE_INFINITY, var predecessor: Node? = null)
+
     class HillGrid(val grid: Array<Array<Int>>, val xStart: Int, val yStart: Int, val xGoal: Int, val yGoal: Int) {
 
         fun determineNeighbors(i: Int, j: Int, nodes: Array<Array<Node>>): List<Node> {
@@ -32,8 +33,8 @@ fun main() {
                }
             }
         }
-        fun dijkstraDist(): Float {
-            val nodes: Array<Array<Node>> = Array(grid.size) {i -> Array(grid[0].size) {j ->  Node(grid[i][j], j, i)}}
+        fun dijkstraDist(xStart:Int = this.xStart, yStart:Int = this.yStart): Float {
+            val nodes: Array<Array<Node>> = Array(grid.size) {i -> Array(grid[0].size) {j ->  Node(j, i)}}
             nodes[yStart][xStart].dist = 0F
             val nodeSet = nodes.flatten().toMutableSet()
             while(nodeSet.isNotEmpty()) {
@@ -49,11 +50,29 @@ fun main() {
             }
             return -1F
         }
+
+        fun lowestPoss(): List<Pair<Int, Int>> {
+            val poss = mutableListOf<Pair<Int, Int>>()
+            for (i in grid.indices) {
+                for (j in grid[i].indices) {
+                    if(grid[i][j] == 0) {
+                        poss.add(Pair(i, j))
+                    }
+                }
+            }
+            return poss
+        }
     }
 
 
     fun part1(hills: HillGrid): Float {
         return hills.dijkstraDist()
+    }
+
+    fun part2(hills: HillGrid): Float {
+        val lowestPoss = hills.lowestPoss()
+        val results = lowestPoss.map { (i, j) -> hills.dijkstraDist(j, i)}
+        return results.min()
     }
 
     fun parseLetterGrid(input: List<String>): HillGrid {
@@ -86,12 +105,17 @@ fun main() {
     val test = (parseLines("Day12_test"))
     val testHills = parseLetterGrid(test)
     println(part1(testHills))
+    println(part2(testHills))
 
     val start = System.currentTimeMillis()
 
     val input = (parseLines("Day12"))
     val hills = parseLetterGrid(input)
     println(part1(hills))
+
+    println("time: " + (System.currentTimeMillis() - start))
+
+    println(part2(hills))
 
     println("time: " + (System.currentTimeMillis() - start))
 
