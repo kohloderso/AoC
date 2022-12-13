@@ -1,6 +1,7 @@
 import java.io.BufferedReader
 import java.io.File
 import java.io.FileReader
+import kotlin.math.absoluteValue
 
 class MarkedInt(val value: Int, var marked: Boolean = false)
 
@@ -89,6 +90,39 @@ fun parseIntGrid(name: String): List<Array<Int>> {
     return result
 }
 
+/**
+ * Split a string representing a list into corresponding sub-lists.
+ * Assuming balanced parentheses.
+ */
+fun parseParenString(input: String, l: Char, r:Char, sep:Char): List<String> {
+    var depth = 0
+    val result = mutableListOf<String>()
+    var currentArg = ""
+    for(c in input) {
+        when(c) {
+            sep -> {
+                if (depth == 1) {
+                    result.add(currentArg)
+                    currentArg = ""
+                } else {
+                    currentArg += c
+                }
+            }
+            l -> {
+                depth++
+                if(depth > 1) currentArg += c
+            }
+            r -> {
+                if(depth > 1) currentArg += c
+                depth--
+            }
+            else -> currentArg += c
+        }
+    }
+    result.add(currentArg)
+    return result
+}
+
 inline fun<reified A> transpose(grid: Array<Array<A>>): Array<Array<A>> {
     val cols = grid[0].size
     val rows = grid.size
@@ -98,3 +132,10 @@ inline fun<reified A> transpose(grid: Array<Array<A>>): Array<Array<A>> {
         }
     }
 }
+
+// utility functions not used right now
+fun gcd(a: Long, b: Long): Long = if (b == 0L) a else gcd(b, a % b)
+
+fun lcm(a: Long, b: Long): Long = (a*b).absoluteValue / gcd(a, b)
+
+fun lcmList(xs: List<Long>): Long = xs.fold(1) {a, x -> lcm(a,x) }

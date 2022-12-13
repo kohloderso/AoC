@@ -68,6 +68,4 @@ fun main() {
 
     //part2(test_device)
     part2(device)
-
-
 }
