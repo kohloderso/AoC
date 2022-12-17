@@ -58,7 +58,7 @@ fun main() {
 
     fun computeMaxFlow(current: State2, input: List<Valve>, distances: Array<Array<Int?>>): Int {
         val results = mutableListOf(current.totalFlow)
-        if(current.meActive) results.add(computeMaxFlow(current.copy(meActive = false), input, distances))
+        if(current.meActive && current.meTimer < 26) results.add(computeMaxFlow(current.copy(meActive = false), input, distances))
         for(valve in current.closedValves) {
             if (current.meTimer == 26 && current.eleTimer == 26) println(valve)
             if (current.meActive) {
