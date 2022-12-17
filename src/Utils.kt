@@ -139,3 +139,24 @@ fun gcd(a: Long, b: Long): Long = if (b == 0L) a else gcd(b, a % b)
 fun lcm(a: Long, b: Long): Long = (a*b).absoluteValue / gcd(a, b)
 
 fun lcmList(xs: List<Long>): Long = xs.fold(1) {a, x -> lcm(a,x) }
+
+fun floydWarshall(dist: Array<Array<Int?>>) {
+    for (k in dist.indices) {
+        for (i in dist.indices) {
+            for (j in dist.indices) {
+                val dist1 = dist[i][k]
+                val dist2 = dist[k][j]
+                val distOld = dist[i][j]
+                if(dist1 != null && dist2 != null) {
+                    if(distOld != null) {
+                        if (dist1 + dist2 < distOld) {
+                            dist[i][j] = dist1 + dist2
+                        }
+                    } else {
+                        dist[i][j] = dist1 + dist2
+                    }
+                }
+            }
+        }
+    }
+}
