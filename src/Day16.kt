@@ -130,14 +130,9 @@ fun main() {
 
     val input = parseLines("Day16")
     val valves = parseValves(input)
-//    println(part1(valves))
+//    println(part1(valves))Day16.kt
     println(part2(valves))
 
     println("time: " + (System.currentTimeMillis() - start))
-
-//    val input = parseLines("Day14")
-//    val rockpaths = input.map { line -> parseRockPath(line) }
-//    println(part1(rockpaths))
-//    println(part2(rockpaths))
 
 }
