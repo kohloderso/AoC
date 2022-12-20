@@ -1,3 +1,6 @@
+import java.lang.Integer.max
+import kotlin.math.abs
+
 fun main() {
 
     data class State(val resources: List<Int> = listOf(0,0,0,0), // entries are numbers of ore, clay, obsidian, geodes
@@ -6,28 +9,53 @@ fun main() {
     class Blueprint(val makeRobots: List<(List<Int>) -> Pair<List<Int>, List<Int>>>, val maxRoboters: List<Int>) {
 
         fun computeNextStates(state: State): Set<State> {
+            // if timer is up, nothing can be built
             if(state.timer <= 0) return emptySet()
+
             val nextStates: MutableSet<State> = mutableSetOf()
-            for ((i, makeRobot) in makeRobots.withIndex()) {
-                val (res, robs) = makeRobot(state.resources)
-                if(res.all { it >= 0}) {
-                    nextStates.add(
-                        State(
-                            res.zip(state.robots) { x, y -> x + y }, // each robot harvests one of the corresponding resource
-                            robs.zip(state.robots) { x, y -> x + y },
-                            state.timer - 1
-                        )
-                    )
-                    if(i == 0) return nextStates // if geode robot can be built it trumps all others
+            for((neededRes, rob) in makeRobots.map { it(listOf(0,0,0,0)) }) {
+                val newRobs = rob.zip(state.robots) {x, y -> x + y}
+                // if max number of robots is not reached yet try to build robot
+                if(newRobs.zip(maxRoboters) {x, y -> x <= y} .all { it } ) {
+                    // compute time at which this type of robot can be built, null if it can't be built at all, because of missing robots
+                    var time: Int? = 1 // minimum time is 1
+                    for((index, res) in neededRes.withIndex()) {
+                        if(res != 0) {
+                            if(state.robots[index] != 0) {
+                                time = max(time!!, Math.ceilDiv(abs(res) - state.resources[index],state.robots[index])+1)
+                            } else {
+                                time = null
+                                break
+                            }
+                        }
+                    }
+                    if(time != null && state.timer - time >= 0) {
+                        val newRes = state.resources.zip(state.robots) { x, y -> x + time*y }.zip(neededRes) { x, y -> x + y}
+                        check(newRes.all { it >= 0 }) // sanity check
+                        nextStates.add(State(newRes, newRobs, state.timer-time))
+                    }
                 }
+            }
+            if(nextStates.isEmpty()) {
+                // if nothing else can be done, run down timer and harvest
+                nextStates.add(State(
+                    state.resources.zip(state.robots) { x, y -> x + state.timer * y }, // each robot harvests one of the corresponding resource per remaining time
+                    state.robots,
+                    0
+                ))
+
             }
             return nextStates
         }
     }
 
     fun computeMaxGeodes(current: State, blueprint: Blueprint, currentMax: Int): Int {
-        if(current.timer <= 1) {
-            return if(current.resources.last() + current.robots.last() > currentMax) current.resources.last() + current.robots.last()
+        if(current.timer <= 0) {
+            return if(current.resources.last() > currentMax) current.resources.last()
+            else currentMax
+        }
+        if(current.timer == 1) {
+            return if(current.resources.last()+current.robots.last() > currentMax) current.resources.last()+current.robots.last()
             else currentMax
         }
 
@@ -47,10 +75,8 @@ fun main() {
         val nexts = blueprint.computeNextStates(current)
         var max = currentMax
         for(next in nexts) {
-            if(next.robots.zip(blueprint.maxRoboters).all { (r, max) -> r <= max}) { // if more than maximal number of useful robots is reached discard this scenario
-                val res = computeMaxGeodes(next, blueprint, max)
-                if(res > max) max = res
-            }
+            val res = computeMaxGeodes(next, blueprint, max)
+            if(res > max) max = res
         }
         return max
     }
@@ -90,7 +116,7 @@ fun main() {
             val split = s.split(":")[1].split(".").filter{ it != ""}
             val makeFunctions: MutableList<(List<Int>) -> Pair<List<Int>, List<Int>>> = mutableListOf()
             // add option to not build any robot
-            makeFunctions.add { resources -> Pair(resources, listOf(0,0,0,0)) }
+//            makeFunctions.add { resources -> Pair(resources, listOf(0,0,0,0)) }
             var maxOre = 0
             var maxClay = 0
             var maxObs = 0
@@ -116,10 +142,10 @@ fun main() {
     val test = parseLines("Day19_test")
     val testBlueprints = parseBlueprints(test)
 
+
+//    check(part1(testBlueprints) == 33)
+
     val start = System.currentTimeMillis()
-    check(part1(testBlueprints) == 33)
-
-
     val input = parseLines("Day19")
     val blueprints = parseBlueprints(input)
     println(part2(blueprints))
