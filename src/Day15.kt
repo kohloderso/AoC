@@ -9,12 +9,12 @@ fun main() {
 
         fun coveredPoss(row: Int, set: MutableSet<Int>) {
             val d = dist - (y - row).absoluteValue
-            set.addAll(x-d..x+d)
+            if(d >= 0) set.addAll(x-d..x+d)
         }
 
-        fun coveredPossInRange(row: Int, set: MutableSet<Int>, max: Int) {
+        fun coveredPossInRange(row: Int, set: MutableSet<IntRange>, max: Int) {
             val d = dist - (y - row).absoluteValue
-            set.addAll(max(x-d, 0)..min(x+d, max))
+            if(d >= 0) set.add(max(x-d, 0)..min(x+d, max))
         }
     }
 
@@ -39,27 +39,40 @@ fun main() {
 
     fun part2(sensors: List<Sensor>, size: Int): Long {
         for(i in 0 .. size) {
-            val impossiblePos = mutableSetOf<Int>()
+            val impossiblePos = sortedSetOf<IntRange>( Comparator { o1, o2 ->
+                if(o1 == o2) 0
+                else if(o1.first < o2.first) -1
+                else if(o1.first == o2.first && o1.last < o2.last) -1
+                else 1
+            })
             sensors.forEach { it.coveredPossInRange(i, impossiblePos, size) }
-            if(impossiblePos.size < size+1) {
-                val col = ((0..size).toSet() - impossiblePos).elementAt(0)
-                return 4000000L * col + i
+            // find out whether there is a free tile in this row
+            var range = impossiblePos.first()
+            for(j in 1 until impossiblePos.size) {
+                val nextRange = impossiblePos.elementAt(j)
+                if(range.contains(nextRange.first)) {
+                    if(range.last < nextRange.last)
+                        range = range.first .. nextRange.last
+                } else {
+                    val col = range.last + 1
+                    return 4000000L * col + i
+                }
             }
-            if(i % 10 == 0) println(i)
         }
 
         return -1
     }
 
 
-    val test = parseLines("Day15_test")
-    val testSensors = test.map { line -> parseSensorLine(line) }
+//    val test = parseLines("Day15_test")
+//    val testSensors = test.map { line -> parseSensorLine(line) }
 //    check(part1(testSensors, 10) == 26)
 //    check(part2(testSensors, 20) == 56000011L)
 
+    val start = System.currentTimeMillis()
     val input = parseLines("Day15")
     val sensors = input.map { line -> parseSensorLine(line) }
 //    println(part1(sensors, 2000000))
     println(part2(sensors, 4000000))
-
+    println("time: " + (System.currentTimeMillis() - start))
 }

@@ -63,8 +63,10 @@ fun main() {
     val start = System.currentTimeMillis()
 
     val input = parseChunks("Day22")
-    val array = input[0].toTypedArray()
-    println(part1(array, input[1][0]))
+    val array = input[0]
+    val maxLength = array.maxOf { it.length }
+    val arrayBuffered = array.map { it.padEnd(maxLength, ' ') }.toTypedArray()
+    println(part1(arrayBuffered, input[1][0]))
 
 //    println(part2(input))
 
