@@ -1,3 +1,5 @@
+package solutions22
+
 import java.lang.Integer.max
 import java.lang.Integer.min
 import kotlin.math.absoluteValue

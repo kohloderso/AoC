@@ -1,3 +1,5 @@
+package solutions22
+
 fun main() {
 
     class Monkey(var items: MutableList<Long>, val op: (Long) -> Long, val test: (Long) -> Int) {

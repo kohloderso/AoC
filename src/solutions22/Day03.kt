@@ -1,3 +1,5 @@
+package solutions22
+
 fun main() {
 
     fun computeValue(c: Char) : Int {

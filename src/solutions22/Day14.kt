@@ -1,3 +1,5 @@
+package solutions22
+
 fun main() {
     class RockGrid(width: Int, height: Int, ) {
         val grid = Array(height+1) { Array(width+1) { '.' } }

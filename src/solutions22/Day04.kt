@@ -1,3 +1,5 @@
+package solutions22
+
 fun main() {
 
     fun part1(input: List<Pair<IntRange, IntRange>>): Int {

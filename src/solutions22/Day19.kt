@@ -1,3 +1,5 @@
+package solutions22
+
 import java.lang.Integer.max
 import kotlin.math.abs
 

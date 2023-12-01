@@ -1,3 +1,5 @@
+package solutions22
+
 fun main() {
 
     fun scoreRound(opponent: Int, self: Int): Int {

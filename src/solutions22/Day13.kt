@@ -1,3 +1,5 @@
+package solutions22
+
 fun main() {
     class NestedList<T:Comparable<T>>(private var value: T? = null,
                         private val elements: MutableList<NestedList<T>> = mutableListOf()

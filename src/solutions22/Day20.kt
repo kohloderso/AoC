@@ -1,3 +1,5 @@
+package solutions22
+
 fun main() {
     fun mixInts(list: List<MarkedInt>): List<MarkedInt> {
         var newList = list
@@ -24,7 +26,7 @@ fun main() {
     }
 
     fun part1(input: List<String>): Int {
-        val list = input.map {MarkedInt(it.toInt(), false)}
+        val list = input.map { MarkedInt(it.toInt(), false) }
         val mixed = mixInts(list)
         val id0 = mixed.indexOfFirst { it.value == 0 }
         val id1 = (id0 + 1000) % mixed.size

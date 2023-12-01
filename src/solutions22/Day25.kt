@@ -1,3 +1,5 @@
+package solutions22
+
 fun main() {
     class SNAFU(val value: String) {
 

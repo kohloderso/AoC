@@ -1,3 +1,5 @@
+package solutions23
+
 import java.io.BufferedReader
 import java.io.File
 import java.io.FileReader
@@ -5,8 +7,10 @@ import kotlin.math.absoluteValue
 
 class MarkedInt(val value: Int, var marked: Boolean = false)
 
+private val input_folder = "src/solutions23/input"
+
 fun parseChunks(name: String): List<List<String>> {
-    val file = File("src/input", "$name.txt")
+    val file = File(input_folder, "$name.txt")
     val result = mutableListOf(mutableListOf<String>())
     BufferedReader(FileReader(file)).use { br ->
         for (line in br.lines()) {
@@ -24,7 +28,7 @@ fun parseIntChunks(name: String) =
     parseChunks(name).map { it.map { line -> line.toInt() } }
 
 fun parseRPC(name: String): List<Pair<Int, Int>> {
-    val lines = File("src/input", "$name.txt").readLines()
+    val lines = File(input_folder, "$name.txt").readLines()
     val result = lines.map{ line ->
         val vals = line.split(' ')
         val opponent =
@@ -47,7 +51,7 @@ fun parseRPC(name: String): List<Pair<Int, Int>> {
 }
 
 fun parseRucksack(name: String): List<Pair<String, String>> {
-    val lines = File("src/input", "$name.txt").readLines()
+    val lines = File(input_folder, "$name.txt").readLines()
     val result = lines.map{ line ->
         val n = line.length
         check(n % 2 == 0)
@@ -59,10 +63,10 @@ fun parseRucksack(name: String): List<Pair<String, String>> {
 }
 
 fun parseLines(name: String) =
-    File("src/input", "$name.txt").readLines()
+    File(input_folder, "$name.txt").readLines()
 
 fun parseSectionPairs(name: String): List<Pair<IntRange, IntRange>> {
-    val lines = File("src/input", "$name.txt").readLines()
+    val lines = File(input_folder, "$name.txt").readLines()
     val result = lines.map { line ->
         val vals = line.split(',')
         val first = vals[0].split('-')
@@ -73,7 +77,7 @@ fun parseSectionPairs(name: String): List<Pair<IntRange, IntRange>> {
 }
 
 fun parseMarkedIntGrid(name: String): List<Array<MarkedInt>> {
-    val lines = File("src/input", "$name.txt").readLines()
+    val lines = File(input_folder, "$name.txt").readLines()
     val result: MutableList<Array<MarkedInt>> = mutableListOf()
     for (line in lines) {
         result.add(line.map { char -> MarkedInt(char.digitToInt()) }.toTypedArray())
@@ -82,7 +86,7 @@ fun parseMarkedIntGrid(name: String): List<Array<MarkedInt>> {
 }
 
 fun parseIntGrid(name: String): List<Array<Int>> {
-    val lines = File("src/input", "$name.txt").readLines()
+    val lines = File(input_folder, "$name.txt").readLines()
     val result: MutableList<Array<Int>> = mutableListOf()
     for (line in lines) {
         result.add(line.map { char -> char.digitToInt() }.toTypedArray())

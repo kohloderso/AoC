@@ -1,3 +1,5 @@
+package solutions22
+
 import kotlin.math.absoluteValue
 
 fun main() {

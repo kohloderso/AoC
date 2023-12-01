@@ -1,3 +1,5 @@
+package solutions22
+
 import kotlin.Float.Companion.POSITIVE_INFINITY
 
 fun main() {

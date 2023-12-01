@@ -1,3 +1,5 @@
+package solutions22
+
 fun main() {
     open class MonkeyMap(val array: Array<String>) {
         var rowId = 0

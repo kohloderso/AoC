@@ -1,3 +1,5 @@
+package solutions22
+
 class Move(private val n: Int, private val from: Int, private val to: Int) {
      fun applyMove9000(crateList: Array<MutableList<Char>>) {
          for (i in 0 until n) {

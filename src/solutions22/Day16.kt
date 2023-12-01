@@ -1,3 +1,5 @@
+package solutions22
+
 fun main() {
     data class Valve(val name: String, val flowRate: Int, val connections: List<String>)
 

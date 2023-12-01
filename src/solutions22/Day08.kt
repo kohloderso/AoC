@@ -1,3 +1,5 @@
+package solutions22
+
 import kotlin.math.min
 
 fun main() {

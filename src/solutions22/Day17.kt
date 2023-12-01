@@ -1,3 +1,5 @@
+package solutions22
+
 fun main() {
 
     data class State(val jetPos: Int, val chamber: List<CharArray>, val height: Long, val shapeCounter: Long) {

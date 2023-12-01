@@ -1,3 +1,5 @@
+package solutions22
+
 import java.util.SortedSet
 import kotlin.math.absoluteValue
 
