@@ -1,19 +1,14 @@
 package solutions23
 
-import java.math.BigInteger
-import kotlin.math.ceil
-import kotlin.math.floor
-import kotlin.math.pow
-import kotlin.math.sqrt
 
 /**
  * Map character to int value to make it easier to order them according
  * to description.
  * A, K, Q, J, T, 9, 8, 7, 6, 5, 4, 3, or 2.
  */
-class CamelCard(val value: Int) : Comparable<CamelCard> {
+class CamelCard(val value: Int, val jokerRule: Boolean = false) : Comparable<CamelCard> {
     companion object {
-        fun charToInt(c: Char): Int = when (c) {
+        fun charToInt(c: Char, jokerRule: Boolean): Int = when (c) {
             '2' -> 2
             '3' -> 3
             '4' -> 4
@@ -23,7 +18,7 @@ class CamelCard(val value: Int) : Comparable<CamelCard> {
             '8' -> 8
             '9' -> 9
             'T' -> 10
-            'J' -> 11
+            'J' -> if(jokerRule) 1 else 11
             'Q' -> 12
             'K' -> 13
             'A' -> 14
@@ -31,7 +26,7 @@ class CamelCard(val value: Int) : Comparable<CamelCard> {
         }
     }
 
-    constructor(c: Char) : this(charToInt(c))
+    constructor(c: Char, jokerRule: Boolean = false) : this(charToInt(c, jokerRule))
 
     override fun compareTo(other: CamelCard): Int {
         return value.compareTo(other.value)
@@ -40,14 +35,39 @@ class CamelCard(val value: Int) : Comparable<CamelCard> {
     override fun equals(other: Any?)
             = (other is CamelCard)
             && value == other.value
+
+    override fun toString(): String = when (value) {
+        1 -> "J"
+        2 -> "2"
+        3 -> "3"
+        4 -> "4"
+        5 -> "5"
+        6 -> "6"
+        7 -> "7"
+        8 -> "8"
+        9 -> "9"
+        10 -> "T"
+        11 -> "J"
+        12 -> "Q"
+        13 -> "K"
+        14 -> "A"
+        else -> ""
+    }
+
+    // auto-generated
+    override fun hashCode(): Int {
+        var result = value
+        result = 31 * result + jokerRule.hashCode()
+        return result
+    }
 }
 
-class Hand(val cards: List<CamelCard>, val bid: Int) : Comparable<Hand> {
+class Hand(val cards: List<CamelCard>, val bid: Int, val jokerRule: Boolean = false) : Comparable<Hand> {
     companion object {
-        fun parse(s: String): Hand {
-            val cards = s.split(" ")[0].map { CamelCard(it) }
+        fun parse(s: String, jokerRule: Boolean = false): Hand {
+            val cards = s.split(" ")[0].map { CamelCard(it, jokerRule) }
             val bid = s.split(" ")[1].toInt()
-            return Hand(cards, bid)
+            return Hand(cards, bid, jokerRule)
         }
     }
 
@@ -63,6 +83,12 @@ class Hand(val cards: List<CamelCard>, val bid: Int) : Comparable<Hand> {
         return 0
     }
 
+    val jokers = cards.filter { it.value == 1 }.size
+
+    val occurrenceCount = cards.groupingBy { it.value }.eachCount().values
+    val highestCount = occurrenceCount.maxOrNull()?: 0
+    val highestWithoutJokers = cards.filter { it.value!= 1 }.groupingBy { it.value }.eachCount().values.maxOrNull()?: 0
+
     fun determineValue(): Int =
         if(isFiveOfAKind) 7
         else if(isFourOfAKind) 6
@@ -74,23 +100,25 @@ class Hand(val cards: List<CamelCard>, val bid: Int) : Comparable<Hand> {
         else 0
 
 
-    val isFiveOfAKind: Boolean = cards.groupingBy { it.value }.eachCount().values.contains(5)
+    val isFiveOfAKind: Boolean = highestWithoutJokers + jokers >= 5
 
-    val isFourOfAKind: Boolean = cards.groupingBy { it.value }.eachCount().values.contains(4)
+    val isFourOfAKind: Boolean = highestWithoutJokers + jokers >= 4
+
+    val isTwoPair: Boolean = occurrenceCount.groupBy { it }.getOrDefault(2, emptyList()).size == 2
 
     val isFullHouse: Boolean =
-        cards.groupingBy { it.value }.eachCount().values.contains(3)
-                && cards.groupingBy { it.value }.eachCount().values.contains(2)
+        (occurrenceCount.contains(3) && occurrenceCount.contains(2))
+                || (isTwoPair && jokers == 1)
 
-    val isThreeOfAKind: Boolean = cards.groupingBy { it.value }.eachCount().values.contains(3)
+    val isThreeOfAKind: Boolean = highestWithoutJokers + jokers >= 3
 
-    val isTwoPair: Boolean =
-        cards.groupingBy { it.value }.eachCount().values.groupBy { it }.getOrDefault(2, emptyList()).size == 2
-
-    val isOnePair: Boolean =
-        cards.groupingBy { it.value }.eachCount().values.contains(2)
+    val isOnePair: Boolean = highestWithoutJokers + jokers >= 2
 
     val isHighCard: Boolean = cards.map { it.value }.distinct().size == 5
+
+    override fun toString(): String {
+        return cards.joinToString("") { it.toString() }
+    }
 }
 
 
@@ -104,13 +132,15 @@ fun main() {
     }
 
     fun part2(input: List<String>): Int {
-        return 0
+        val hands = input.map { Hand.parse(it, true) }
+        val handsSorted = hands.sortedBy { it }
+        return handsSorted.withIndex().sumOf { it.value.bid * (it.index + 1) }
     }
 
     // test if implementation meets criteria from the description:
     val testInput = parseLines("Day07_test")
     check(part1(testInput) == 6440)
-    check(part2(testInput) == 0)
+    check(part2(testInput) == 5905)
 
     val input = parseLines("Day07")
     println(part1(input))
