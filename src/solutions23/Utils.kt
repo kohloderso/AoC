@@ -137,6 +137,19 @@ inline fun<reified A> transpose(grid: Array<Array<A>>): Array<Array<A>> {
     }
 }
 
+//compute cartesian product of a list of lists
+inline fun<reified A> cartesianProd(lists: List<List<A>>): List<List<A>> {
+    return lists.fold(listOf(listOf<A>())) { acc, list ->
+        acc.flatMap { list1 ->
+            list.map { elem ->
+                list1 + elem
+            }
+        }
+    }
+}
+
+
+
 // utility functions not used right now
 fun gcd(a: Long, b: Long): Long = if (b == 0L) a else gcd(b, a % b)
 
