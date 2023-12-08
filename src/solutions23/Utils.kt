@@ -5,8 +5,6 @@ import java.io.File
 import java.io.FileReader
 import kotlin.math.absoluteValue
 
-class MarkedInt(val value: Int, var marked: Boolean = false)
-
 private val input_folder = "src/solutions23/input"
 
 fun parseChunks(name: String): List<List<String>> {
@@ -27,72 +25,9 @@ fun parseChunks(name: String): List<List<String>> {
 fun parseIntChunks(name: String) =
     parseChunks(name).map { it.map { line -> line.toInt() } }
 
-fun parseRPC(name: String): List<Pair<Int, Int>> {
-    val lines = File(input_folder, "$name.txt").readLines()
-    val result = lines.map{ line ->
-        val vals = line.split(' ')
-        val opponent =
-            when(vals[0]) {
-                "A" -> 1
-                "B" -> 2
-                "C" -> 3
-                else -> -1
-            }
-        val self =
-            when(vals[1]) {
-                "X" -> 1
-                "Y" -> 2
-                "Z" -> 3
-                else -> -1
-            }
-        Pair(opponent, self)
-    }
-    return result
-}
-
-fun parseRucksack(name: String): List<Pair<String, String>> {
-    val lines = File(input_folder, "$name.txt").readLines()
-    val result = lines.map{ line ->
-        val n = line.length
-        check(n % 2 == 0)
-        val first = line.take(n/2)
-        val second = line.drop(n/2)
-        Pair(first, second)
-    }
-    return result
-}
-
 fun parseLines(name: String) =
     File(input_folder, "$name.txt").readLines()
 
-fun parseSectionPairs(name: String): List<Pair<IntRange, IntRange>> {
-    val lines = File(input_folder, "$name.txt").readLines()
-    val result = lines.map { line ->
-        val vals = line.split(',')
-        val first = vals[0].split('-')
-        val second = vals[1].split('-')
-        Pair(first[0].toInt()..first[1].toInt(), second[0].toInt()..second[1].toInt())
-    }
-    return result
-}
-
-fun parseMarkedIntGrid(name: String): List<Array<MarkedInt>> {
-    val lines = File(input_folder, "$name.txt").readLines()
-    val result: MutableList<Array<MarkedInt>> = mutableListOf()
-    for (line in lines) {
-        result.add(line.map { char -> MarkedInt(char.digitToInt()) }.toTypedArray())
-    }
-    return result
-}
-
-fun parseIntGrid(name: String): List<Array<Int>> {
-    val lines = File(input_folder, "$name.txt").readLines()
-    val result: MutableList<Array<Int>> = mutableListOf()
-    for (line in lines) {
-        result.add(line.map { char -> char.digitToInt() }.toTypedArray())
-    }
-    return result
-}
 
 /**
  * Split a string representing a list into corresponding sub-lists.
