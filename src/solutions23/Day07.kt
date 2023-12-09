@@ -62,12 +62,12 @@ class CamelCard(val value: Int, val jokerRule: Boolean = false) : Comparable<Cam
     }
 }
 
-class Hand(val cards: List<CamelCard>, val bid: Int, val jokerRule: Boolean = false) : Comparable<Hand> {
+class Hand(val cards: List<CamelCard>, val bid: Int) : Comparable<Hand> {
     companion object {
         fun parse(s: String, jokerRule: Boolean = false): Hand {
             val cards = s.split(" ")[0].map { CamelCard(it, jokerRule) }
             val bid = s.split(" ")[1].toInt()
-            return Hand(cards, bid, jokerRule)
+            return Hand(cards, bid)
         }
     }
 
@@ -86,7 +86,7 @@ class Hand(val cards: List<CamelCard>, val bid: Int, val jokerRule: Boolean = fa
     val jokers = cards.filter { it.value == 1 }.size
 
     val occurrenceCount = cards.groupingBy { it.value }.eachCount().values
-    val highestCount = occurrenceCount.maxOrNull()?: 0
+
     val highestWithoutJokers = cards.filter { it.value!= 1 }.groupingBy { it.value }.eachCount().values.maxOrNull()?: 0
 
     fun determineValue(): Int =

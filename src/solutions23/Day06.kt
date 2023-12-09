@@ -23,8 +23,8 @@ class RaceBig(val duration: BigInteger, val recordDistance: BigInteger) {
     fun solveIneq(): Double {
         val r1 = duration.toDouble() / 2 + sqrt((duration.toDouble() / 2).pow(2) - recordDistance.toDouble())
         val r2 = duration.toDouble() / 2 - sqrt((duration.toDouble() / 2).pow(2) - recordDistance.toDouble())
-        return if (r1 < r2) floor(r2 - 0.00001) - ceil(r1 + 0.0001) + 1
-        else floor(r1 - 0.00001) - ceil(r2 + 0.0001) + 1
+        return if (r1 < r2) floor(r2 - 0.00001) - ceil(r1 + 0.00001) + 1
+        else floor(r1 - 0.00001) - ceil(r2 + 0.00001) + 1
     }
 
 }

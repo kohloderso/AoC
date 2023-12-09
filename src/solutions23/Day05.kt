@@ -1,8 +1,7 @@
 package solutions23
 
-import java.math.BigInteger
 
-class EntryRange(val start: BigInteger, val end: BigInteger) {
+class EntryRange(val start: Long, val end: Long) {
     fun intersect(r: EntryRange): EntryRange? {
         val start = maxOf(start, r.start)
         val end = minOf(end, r.end)
@@ -10,26 +9,26 @@ class EntryRange(val start: BigInteger, val end: BigInteger) {
     }
 
     fun minus(r: EntryRange): List<EntryRange> {
-        val r1 = if(start <= r.start - BigInteger.ONE) EntryRange(start, r.start - BigInteger.ONE) else null
-        val r2 = if(end >= r.end + BigInteger.ONE) EntryRange(r.end + BigInteger.ONE, end) else null
+        val r1 = if(start <= r.start - 1) EntryRange(start, r.start - 1) else null
+        val r2 = if(end >= r.end + 1) EntryRange(r.end + 1, end) else null
         return listOfNotNull(r1, r2)
     }
 
-    fun contains(n: BigInteger): Boolean = n in start..end
+    fun contains(n: Long): Boolean = n in start..end
 
-    val length = end - start + BigInteger.ONE
+    val length = end - start + 1
 }
 
-class AlmanacMap(val entries: List<Pair<EntryRange, BigInteger>>) {
+class AlmanacMap(val entries: List<Pair<EntryRange, Long>>) {
     companion object {
         fun create(input: List<String>): AlmanacMap {
-            val lists = input.map { it.split(" ").map { it.toBigInteger() } }
-            return AlmanacMap(lists.map { Pair(EntryRange(it[1], it[1]+it[2]-BigInteger.ONE), it[0]) })
+            val lists = input.map { it.split(" ") }
+            return AlmanacMap(lists.map { Pair(EntryRange(it[1].toLong(), it[1].toLong()+it[2].toLong()-1), it[0].toLong()) })
         }
     }
 
 
-    fun lookup(value: BigInteger): BigInteger {
+    fun lookup(value: Long): Long {
         for(entry in entries) {
             if(entry.first.contains(value)) {
                 return entry.second + (value - entry.first.start)
@@ -50,7 +49,7 @@ class AlmanacMap(val entries: List<Pair<EntryRange, BigInteger>>) {
                     val remainingRanges = currentRange.minus(subEntry)
                     rangesToCheck.addAll(remainingRanges)
                     val resultEntry = EntryRange(entry.second + (subEntry.start - entry.first.start),
-                        entry.second + (subEntry.start - entry.first.start) + subEntry.length - BigInteger.ONE)
+                        entry.second + (subEntry.start - entry.first.start) + subEntry.length - 1)
                     result.add(resultEntry)
                     lookupSuccess = true
                     break
@@ -62,19 +61,19 @@ class AlmanacMap(val entries: List<Pair<EntryRange, BigInteger>>) {
     }
 }
 
-class Almanac(val seeds: List<BigInteger>, val seedRanges: List<EntryRange>, val maps: List<AlmanacMap>) {
+class Almanac(val seeds: List<Long>, val seedRanges: List<EntryRange>, val maps: List<AlmanacMap>) {
 
     companion object {
         fun create(seedString: String, mapStrings: List<List<String>>): Almanac {
-            val seeds = seedString.split(":")[1].split(" ").filterNot { it==""}.map { it.toBigInteger() }
+            val seeds = seedString.split(":")[1].split(" ").filterNot { it==""}.map { it.toLong() }
             // combine every two consecutive entries of seeds into a pair
-            val seedRanges = seeds.chunked(2).map { EntryRange(it[0], it[0]+it[1]-BigInteger.ONE) }
+            val seedRanges = seeds.chunked(2).map { EntryRange(it[0], it[0] + it[1] -1) }
             val maps = mapStrings.map { AlmanacMap.create(it.drop(1)) }
             return Almanac(seeds, seedRanges, maps)
         }
     }
 
-    fun lookup(seed: BigInteger): BigInteger {
+    fun lookup(seed: Long): Long {
         var result = seed
         // for each map determine the entry for result and update result accordingly
         maps.forEach { map -> result = map.lookup(result) }
@@ -87,28 +86,28 @@ class Almanac(val seeds: List<BigInteger>, val seedRanges: List<EntryRange>, val
         return result
     }
 
-    val lowestEndResult: BigInteger = seeds.minOfOrNull { lookup(it) } ?: BigInteger.ZERO
+    val lowestEndResult: Long = seeds.minOfOrNull { lookup(it) } ?: 0
 
-    val lowestEndResultByRange: BigInteger = lookupAllRanges().minOfOrNull { it.start }?: BigInteger.ZERO
+    val lowestEndResultByRange: Long = lookupAllRanges().minOfOrNull { it.start }?: 0
 
 }
 
 fun main() {
 
-    fun part1(input: List<List<String>>): BigInteger {
+    fun part1(input: List<List<String>>): Long {
         val almanac = Almanac.create(input[0][0], input.drop(1))
         return almanac.lowestEndResult
     }
 
-    fun part2(input: List<List<String>>): BigInteger {
+    fun part2(input: List<List<String>>): Long {
         val almanac = Almanac.create(input[0][0], input.drop(1))
         return almanac.lowestEndResultByRange
     }
 
     // test if implementation meets criteria from the description:
     val testInput = parseChunks("Day05_test")
-    check(part1(testInput) == 35.toBigInteger())
-    check(part2(testInput) == 46.toBigInteger())
+    check(part1(testInput) == 35L)
+    check(part2(testInput) == 46L)
 
     val input = parseChunks("Day05")
     println(part1(input))

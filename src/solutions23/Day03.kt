@@ -1,7 +1,7 @@
 package solutions23
 
 
-class EngineScheme(val scheme: List<String>, partNumbers: List<Int>) {
+class EngineScheme(partNumbers: List<Int>) {
 
     companion object {
         //anything that is not a dot or a digit is a symbol
@@ -41,7 +41,7 @@ class EngineScheme(val scheme: List<String>, partNumbers: List<Int>) {
                 }
             }
             val parts = partIds.toList().map { content[it.first].substring(it.second, it.third).toInt() }
-            return EngineScheme(content, parts)
+            return EngineScheme(parts)
         }
 
         private fun getNumber(scheme: List<String>, triple: Triple<Int, Int, Int>): Int {
