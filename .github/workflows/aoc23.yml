@@ -1,4 +1,4 @@
-name: Update AoC Badges
+name: Update AoC Badges 23
 on:
   push:                                          # run on push, be careful with this setting 
                                                  # as the workflow should only be triggered at a rate lower than
