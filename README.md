@@ -4,11 +4,8 @@ Welcome to the Advent of Code[^aoc] Kotlin project created by [kohloderso][githu
 
 In this repository, kohloderso is about to provide solutions for the puzzles using [Kotlin][kotlin] language.
 
-If you're stuck with Kotlin-specific questions or anything related to this template, check out the following resources:
-
-- [Kotlin docs][docs]
-- [Kotlin Slack][slack]
-- Template [issue tracker][issues]
+![](https://img.shields.io/badge/day%20📅-22-blue)
+![](https://img.shields.io/badge/stars%20⭐-34-yellow)
 
 
 [^aoc]:
