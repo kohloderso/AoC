@@ -12,7 +12,11 @@ jobs:
       - uses: joblo2213/aoc-badges-action@v3
         with:
           userid: 2263584                    
-          session: ${{ secrets.SESSION }}    
+          session: ${{ secrets.SESSION }}
+          year: 2023
+          dayRegex: '(?<=https:\/\/img\.shields\.io\/badge\/day%20📅-)[0-9]+(?=-lightblue)'                   # make sure the day of 2023 is not overwritten, i.e. use red here, blue is used for 2023
+          starsRegex: '(?<=https:\/\/img\.shields\.io\/badge\/stars%20⭐-)[0-9]+(?=-yellow)'             # Regular expression that finds the content of the stars badge in your file.
+          daysCompletedRegex: '(?<=https:\/\/img\.shields\.io\/badge\/completed-)[0-9]+(?=-darkblue)'  # Regular expression that finds the content of the days completed badge iun your file.
           
       - uses: joblo2213/aoc-badges-action@v3
         with:
@@ -24,7 +28,7 @@ jobs:
           #         file: 'README.md'                                                                              # The file that contains the badges
           dayRegex: '(?<=https:\/\/img\.shields\.io\/badge\/day%20📅-)[0-9]+(?=-red)'                   # make sure the day of 2023 is not overwritten, i.e. use red here, blue is used for 2023
           starsRegex: '(?<=https:\/\/img\.shields\.io\/badge\/⭐%20stars%20⭐-)[0-9]+(?=-yellow)'             # Regular expression that finds the content of the stars badge in your file.
-          daysCompletedRegex: '(?<=https:\/\/img\.shields\.io\/badge\/days%20completed-)[0-9]+(?=-blue)'  # Regular expression that finds the content of the days completed badge iun your file.
+          daysCompletedRegex: '(?<=https:\/\/img\.shields\.io\/badge\/days%20completed-)[0-9]+(?=-darkblue)'  # Regular expression that finds the content of the days completed badge iun your file.
 
       - uses: stefanzweifel/git-auto-commit-action@v4     # Step that pushes these local changes back to your github repo
         with:
