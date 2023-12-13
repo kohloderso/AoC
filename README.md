@@ -9,6 +9,14 @@ In this repository, kohloderso is about to provide solutions for the puzzles usi
 ![](https://img.shields.io/badge/day%20📅-12-lightblue)
 ![](https://img.shields.io/badge/completed-10-darkblue)
 
+#### A Note About Day 12
+I found this cool paper about the number of Nonogram solutions per line: 
+[Nonograms: Combinatorial questions and algorithms][paper] by Barend et al.
+I also needed a small python project for a scientific computing course 
+that I am taking. So I implemented this in python. Runtime according to the paper 
+is $O(nk)$ where $n$ is the length of the line and $k$ is the number of hints 
+for the line.
+
 ### 2022
 ![](https://img.shields.io/badge/⭐%20stars%20⭐-50-yellow)
 ![](https://img.shields.io/badge/days%20completed-25-darkblue)
@@ -26,3 +34,4 @@ In this repository, kohloderso is about to provide solutions for the puzzles usi
 [kotlin]: https://kotlinlang.org
 [slack]: https://surveys.jetbrains.com/s3/kotlin-slack-sign-up
 [template]: https://github.com/kotlin-hands-on/advent-of-code-kotlin-template
+[paper]: https://doi.org/10.1016/j.dam.2014.01.004
