@@ -95,30 +95,26 @@ fun lcmList(xs: List<Long>): Long = xs.fold(1) {a, x -> lcm(a,x) }
 /**
  * Simple generic Dijkstra implementation where the input is a grid consisting of
  * two types of tiles: the ones which are allowed are true, the ones which are blocked are set to false.
+ * Also takes sorted queue of initial coordinates with their distance as input.
  * Returns a grid of the same size as the input containing the shortest paths from the start.
  */
-fun dijkstra(grid: Array<Array<Boolean>>, startX: Int, startY: Int): Array<Array<Int>> {
+fun dijkstra(grid: Array<Array<Boolean>>, nextNodes: ArrayDeque<Triple<Int, Int, Int>>): Array<Array<Int>> {
     val distArray = Array(grid.size) { Array(grid[0].size) { Int.MAX_VALUE } }
-    distArray[startX][startY] = 0
-    val nextNodes = ArrayDeque<Triple<Int, Int, Int>>()
-    nextNodes.add(Triple(0, startX, startY))
     while (nextNodes.isNotEmpty()) {
         val (dist, i, j) = nextNodes.removeFirst()
+        if(distArray[i][j] <= dist) continue
+        distArray[i][j] = dist
         // check the four direct neighbours
         if (i - 1 >= 0 && grid[i - 1][j] && distArray[i - 1][j] > dist + 1) {
-            distArray[i - 1][j] = dist + 1
             nextNodes.add(Triple(dist + 1, i - 1, j))
         }
         if (i + 1 < grid.size && grid[i + 1][j] && distArray[i + 1][j] > dist + 1) {
-            distArray[i + 1][j] = dist + 1
             nextNodes.add(Triple(dist + 1, i + 1, j))
         }
         if (j - 1 >= 0 && grid[i][j - 1] && distArray[i][j - 1] > dist + 1) {
-            distArray[i][j - 1] = dist + 1
             nextNodes.add(Triple(dist + 1, i, j - 1))
         }
         if (j + 1 < grid[0].size && grid[i][j + 1] && distArray[i][j + 1] > dist + 1) {
-            distArray[i][j + 1] = dist + 1
             nextNodes.add(Triple(dist + 1, i, j + 1))
         }
     }
