@@ -5,9 +5,9 @@ Welcome to the Advent of Code[^aoc] Kotlin project created by [kohloderso][githu
 In this repository, kohloderso is about to provide solutions for the puzzles using [Kotlin][kotlin] language.
 
 ### 2023
-![](https://img.shields.io/badge/stars%20⭐-30-yellow)
-![](https://img.shields.io/badge/day%20📅-21-lightblue)
-![](https://img.shields.io/badge/completed-14-darkblue)
+![](https://img.shields.io/badge/stars%20⭐-32-yellow)
+![](https://img.shields.io/badge/day%20📅-22-lightblue)
+![](https://img.shields.io/badge/completed-15-darkblue)
 
 #### A Note About Day 12
 I found this cool paper about the number of Nonogram solutions per line: 
