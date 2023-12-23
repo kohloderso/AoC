@@ -93,7 +93,7 @@ fun lcm(a: Long, b: Long): Long = (a*b).absoluteValue / gcd(a, b)
 fun lcmList(xs: List<Long>): Long = xs.fold(1) {a, x -> lcm(a,x) }
 
 /**
- * Simple generic Dijkstra implementation where the input is a grid consisting of
+ * Simple Dijkstra implementation where the input is a grid consisting of
  * two types of tiles: the ones which are allowed are true, the ones which are blocked are set to false.
  * Also takes sorted queue of initial coordinates with their distance as input.
  * Returns a grid of the same size as the input containing the shortest paths from the start.
@@ -119,6 +119,20 @@ fun dijkstra(grid: Array<Array<Boolean>>, nextNodes: ArrayDeque<Triple<Int, Int,
         }
     }
     return distArray
+}
+
+fun <A> genericDijkstra(neighbours: (A) -> List<A>, nextNodes: ArrayDeque<Pair<Int, A>>, comparator: (Int, Int) -> Boolean = { x,y -> x <= y }): Map<A, Int> {
+    val dists = mutableMapOf<A, Int>()
+    while (nextNodes.isNotEmpty()) {
+        val (dist, elem) = nextNodes.removeFirst()
+        val oldDist = dists[elem]
+        if (oldDist != null && comparator(oldDist, dist)) continue
+        dists[elem] = dist
+        // check all neighbours
+        val nexts = neighbours(elem)
+        nexts.forEach { nextNodes.add(Pair(dist + 1, it)) }
+    }
+    return dists
 }
 
 fun floydWarshall(dist: Array<Array<Int?>>) {
