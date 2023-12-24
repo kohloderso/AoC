@@ -5,7 +5,7 @@ Welcome to the Advent of Code[^aoc] Kotlin project created by [kohloderso][githu
 In this repository, kohloderso is about to provide solutions for the puzzles using [Kotlin][kotlin] language.
 
 ### 2023
-![](https://img.shields.io/badge/stars%20⭐-35-yellow)
+![](https://img.shields.io/badge/stars%20⭐-36-yellow)
 ![](https://img.shields.io/badge/day%20📅-24-lightblue)
 ![](https://img.shields.io/badge/completed-16-darkblue)
 
