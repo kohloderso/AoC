@@ -1,6 +1,6 @@
 package solutions23
 
-abstract class Module(val destinations: List<String>) {
+abstract class Module(val name: String, val destinations: List<String>) {
     // 0 for low pulse, 1 for high pulse
     // returns list of new destinations and new pulse
     abstract fun handlePulse(pulse: Int, sender: Module): List<Triple<String, Int, Module>>
@@ -8,7 +8,7 @@ abstract class Module(val destinations: List<String>) {
     open fun addPredecessor(predecessor: Module) {}
 }
 
-class FliFlopModule(destinations: List<String>) : Module(destinations) {
+class FliFlopModule(name: String, destinations: List<String>) : Module(name, destinations) {
     private var on = 0
     override fun handlePulse(pulse: Int, sender: Module): List<Triple<String, Int, Module>> = when(pulse) {
         0 -> {
@@ -22,7 +22,7 @@ class FliFlopModule(destinations: List<String>) : Module(destinations) {
 
 }
 
-class ConjunctionModule(destinations: List<String>) : Module(destinations) {
+class ConjunctionModule(name: String, destinations: List<String>) : Module(name, destinations) {
     // remember the pulses from all predecessors
     var predecessorMap = mutableMapOf<Module, Int>()
 
@@ -42,7 +42,7 @@ class ConjunctionModule(destinations: List<String>) : Module(destinations) {
     }
 }
 
-class BroadcasterModule(destinations: List<String>) : Module(destinations) {
+class BroadcasterModule(name: String, destinations: List<String>) : Module(name, destinations) {
     override fun handlePulse(pulse: Int, sender: Module): List<Triple<String, Int, Module>> =
         destinations.map { Triple(it, pulse, this) }
 
@@ -74,47 +74,33 @@ fun main() {
         return Triple(countLowPulse, countHighPulse, moduleMap.mapValues { it.value.exportState() })
     }
 
-    // returns true if module with moduleName receives a low pulse
-    fun pushButtonWithModuleCheck(moduleMap: Map<String, Module>, moduleName: String): Boolean {
-        // initialize with broadcaster, low pulse and some random sender, since sender is not important for first transmission
-        var transmission = listOf(Triple("broadcaster", 0,moduleMap.values.first()))
-        while(transmission.isNotEmpty()) {
-            val newList = mutableListOf<Triple<String, Int, Module>>()
-            for((moduleString, pulse, sender) in transmission) {
-                if(moduleString == moduleName && pulse == 0) return true
-                val module = moduleMap[moduleString]
-                if(module != null) {
-                    newList.addAll(module.handlePulse(pulse, sender))
-                }
-            }
-            transmission = newList
-        }
-        return false
-    }
 
     // return lowPulses, highPulses for each element of the cycle
-    fun detectCycle(moduleMap: Map<String, Module>, cutoff: Int): List<Pair<Int, Int>> {
+    fun simulateButtonPresses(moduleMap: Map<String, Module>, cutoff: Int): List<Pair<Int, Int>> {
         val states = mutableListOf(moduleMap.mapValues { it.value.exportState() })
         val pulses = mutableListOf<Pair<Int, Int>>()
         while(pulses.size < cutoff) {
             val (lowPulse, highPulse, newState) = pushButton(moduleMap)
             pulses.add(Pair(lowPulse, highPulse))
-            if(states.contains(newState)) return pulses
             states.add(newState)
         }
         return pulses
     }
 
-    // return lowPulses, highPulses for each element of the cycle
-    fun detectLowPulse(moduleMap: Map<String, Module>, moduleName: String = "rx"): Long {
-        var buttonPresses = 0L
+    // return cycle length
+    fun detectCycle(moduleMap: Map<String, Module>, moduleName: String): Int {
+        val states = mutableListOf(moduleMap.mapValues { it.value.exportState() })
         while(true) {
-            val res = pushButtonWithModuleCheck(moduleMap, moduleName)
-            buttonPresses++
-            if(res) return buttonPresses
-            if(buttonPresses % 1000000 == 0L) println("${buttonPresses} button presses")
+            val (_, _, newState) = pushButton(moduleMap)
+            if(newState[moduleName] == "1" && states.last()[moduleName] == "0") {
+                println("${states.size}: got high pulse")
+            }
+            if(states.contains(newState)) {
+                val highPulses = states.indices.filter { states[it][moduleName] == "1" }
+                return states.size
+            }
+            states.add(newState)
         }
-        return buttonPresses
     }
 
 
@@ -125,11 +111,14 @@ fun main() {
             val destinations = split[1].split(", ")
             val (name, module) =
                 if(split[0].contains("%")) {
-                    Pair(split[0].removePrefix("%"), FliFlopModule(destinations))
+                    val name = split[0].removePrefix("%")
+                    Pair(name, FliFlopModule(name, destinations))
                 } else if(split[0].contains("&")) {
-                    Pair(split[0].removePrefix("&"), ConjunctionModule(destinations))
+                    val name = split[0].removePrefix("&")
+                    Pair(name, ConjunctionModule(name, destinations))
                 } else {
-                    Pair("broadcaster", BroadcasterModule(destinations))
+                    val name = "broadcaster"
+                    Pair(name, BroadcasterModule(name, destinations))
                 }
             moduleMap[name] = module
         }
@@ -144,17 +133,27 @@ fun main() {
 
     fun part1(input: List<String>, totalButtonPresses: Int = 1000): Long {
         val moduleMap = initModules(input)
-        val cyclePulses = detectCycle(moduleMap, totalButtonPresses)
-        val iterations = totalButtonPresses / cyclePulses.size
-        val remainder = totalButtonPresses % cyclePulses.size
-        val lowPulse = cyclePulses.sumOf { it.first } * iterations.toLong() + cyclePulses.take(remainder).sumOf { it. first }
-        val highPulse = cyclePulses.sumOf { it.second } * iterations.toLong() + cyclePulses.take(remainder).sumOf { it.second }
+        val pulses = simulateButtonPresses(moduleMap, totalButtonPresses)
+        val lowPulse = pulses.sumOf { it.first }.toLong()
+        val highPulse = pulses.sumOf { it.second }.toLong()
         return lowPulse * highPulse
     }
 
     fun part2(input: List<String>): Long {
         val moduleMap = initModules(input)
-        return detectLowPulse(moduleMap)
+        // solution by inspecting the input:
+        // The predecessor of rx is module tg which is a ConjunctionModule.
+        // It only sends a low pulse if all its predecessors have just received a high pulse.
+        // Moreover, all predecessors only send their pulse to tg, no other module.
+        // idea: inspect problem where we remove all except one of these predecessors
+        // and find cycle length. Look for iteration where this predecessor receives a high pulse.
+        val tg = moduleMap["tg"] as ConjunctionModule
+        simulateButtonPresses(moduleMap, 2)
+        val preds = tg.predecessorMap.keys.map { it.name }
+        val cycles = preds.map { module ->
+            detectCycle(moduleMap.filterKeys { (!preds.contains(it) || it == module) && it != "tg"}, module).toLong()
+        }
+        return lcmList(cycles)
     }
 
     val testInput = parseLines("Day20_test")
