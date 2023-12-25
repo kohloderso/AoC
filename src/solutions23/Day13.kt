@@ -1,15 +1,22 @@
 package solutions23
 
-import solutions22.transpose
-
 fun main() {
 
-    // returns number rows above the mirror
-    fun<A> findReflectionLine(grid: Array<Array<A>>): Int {
+
+    // find one-off reflection lie
+    fun <A> findReflectionLine(grid: Array<Array<A>>, smudges: Int = 0): Int {
         for(i in 1 until grid.size) {
+            var misses = 0
             // take i lines above and check if the next i lines below are mirrored
-            if((0 until i).all{ 2*i-(it+1) >= grid.size || grid[it].contentEquals(grid[2*i-(it+1)]) })
+            for(j in 0 until i) {
+                if (2 * i - (j + 1) < grid.size) {
+                    misses += grid[j].zip(grid[2 * i - (j + 1)]).count { (x, y) -> x != y }
+                    if (misses > smudges) break
+                }
+            }
+            if(misses == smudges) {
                 return i
+            }
         }
         return -1
     }
@@ -33,35 +40,15 @@ fun main() {
     fun part2(input: List<List<String>>): Int {
         // for each grid and each element in the grid try flipping it and find a reflection line different from the original
         val grids = input.map { grid -> grid.map { row -> Array(row.length) {i -> row[i]} }.toTypedArray() }
-        // save the original reflections
-        val horizontalRefls = grids.map { findReflectionLine(it) }
-        val verticalRefls = grids.map { findReflectionLine(transpose(it)) }
-
+        val horizontalRefls = grids.map { findReflectionLine(it, 1) }
         var result = 0
         for(i in grids.indices) {
-            val grid = grids[i]
-            rows@for(flipRow in grid.indices) {
-                for(flipCol in grid[0].indices) {
-                    when(grid[flipRow][flipCol]) {
-                        '#' -> grid[flipRow][flipCol] = '.'
-                        '.' -> grid[flipRow][flipCol] = '#'
-                    }
-                    val horizontalRefl = findReflectionLine(grid)
-                    if(horizontalRefl != -1 && horizontalRefl != horizontalRefls[i]) {
-                        result += horizontalRefl * 100
-                        break@rows
-                    }
-                    val verticalRefl = findReflectionLine(transpose(grid))
-                    if(verticalRefl != -1 && verticalRefl != verticalRefls[i]) {
-                        result += verticalRefl
-                        break@rows
-                    }
-                    // flip back
-                    when(grid[flipRow][flipCol]) {
-                        '#' -> grid[flipRow][flipCol] = '.'
-                        '.' -> grid[flipRow][flipCol] = '#'
-                    }
-                }
+            if(horizontalRefls[i] != -1) {
+                result += horizontalRefls[i] * 100
+            } else {
+                val verticalRefl = findReflectionLine(transpose(grids[i]), 1)
+                if(verticalRefl == -1) println("No reflection found")
+                else result += verticalRefl
             }
         }
         return result
