@@ -72,6 +72,16 @@ inline fun<reified A> transpose(grid: Array<Array<A>>): Array<Array<A>> {
     }
 }
 
+inline fun<reified A> rotateRight(grid: Array<Array<A>>): Array<Array<A>> {
+    val cols = grid[0].size
+    val rows = grid.size
+    return Array(cols) { j ->
+        Array(rows) { i ->
+            grid[rows-i-1][j]
+        }
+    }
+}
+
 //compute cartesian product of a list of lists
 inline fun<reified A> cartesianProd(lists: List<List<A>>): List<List<A>> {
     return lists.fold(listOf(listOf<A>())) { acc, list ->
