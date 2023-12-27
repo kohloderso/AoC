@@ -1,5 +1,9 @@
 package solutions23
 
+import kotlin.math.abs
+import kotlin.math.max
+import kotlin.math.min
+
 fun main() {
 
     // return start point as index of distArray
@@ -12,6 +16,63 @@ fun main() {
             }
         }
         return -1 to -1
+    }
+
+    fun computeLeftGrid(grid: Array<Array<Boolean>>, initCol: List<Int>): Array<Array<Int>> {
+        val queue = ArrayDeque<Triple<Int, Int, Int>>()
+        for(row in grid.indices) {
+            val dist = initCol[row] + 1
+            queue.add(Triple(dist, row, grid[0].size-1))
+        }
+        return dijkstra(grid, queue)
+    }
+    fun computeRightGrid(grid: Array<Array<Boolean>>, initCol: List<Int>): Array<Array<Int>> {
+        val queue = ArrayDeque<Triple<Int, Int, Int>>()
+        for(row in grid.indices) {
+            val dist = initCol[row] + 1
+            queue.add(Triple(dist, row, 0))
+        }
+        return dijkstra(grid, queue)
+    }
+
+    fun computeBottomGrid(grid: Array<Array<Boolean>>, initRow: List<Int>): Array<Array<Int>> {
+        val queue = ArrayDeque<Triple<Int, Int, Int>>()
+        for(col in grid[0].indices) {
+            val dist = initRow[col] + 1
+            queue.add(Triple(dist, 0, col))
+        }
+        return dijkstra(grid, queue)
+    }
+
+    fun computeTopGrid(grid: Array<Array<Boolean>>, initRow: List<Int>): Array<Array<Int>> {
+        val queue = ArrayDeque<Triple<Int, Int, Int>>()
+        for(col in grid[0].indices) {
+            val dist = initRow[col] + 1
+            queue.add(Triple(dist, grid.size-1, col))
+        }
+        return dijkstra(grid, queue)
+    }
+
+    fun initTopBottomDist(grid: Array<Array<Boolean>>): Array<Array<Int>> {
+        val distMatrix = Array(grid[0].size) { Array (grid[0].size) { Int.MAX_VALUE } }
+        for(i in grid[0].indices) {
+            val dists = dijkstra(grid, ArrayDeque(setOf(Triple(0,0, i))))
+            distMatrix[i] = dists.last()
+        }
+        return distMatrix
+    }
+
+    fun computeOpposite(values: List<Int>, oppositeDists: Array<Array<Int>>): List<Int> {
+        val n = values.size
+        return values.indices.map { i ->
+            var currentBest = Int.MAX_VALUE
+            for (j in max(i - n / 2, 0) until min(i + n / 2, n)) {
+                if (values[j] + oppositeDists[j][i] < currentBest) {
+                    currentBest = values[j] + oppositeDists[j][i]
+                }
+            }
+            currentBest
+        }
     }
 
     fun part1(input: List<String>, steps: Int): Int {
@@ -29,63 +90,80 @@ fun main() {
         val visitedGrids = mutableSetOf<Pair<Int, Int>>()
         var counter = 0L
         val startPoint = findStartPoint(input)
+        val initDists = dijkstra(gardenGrid, ArrayDeque(setOf(Triple(0,startPoint.first, startPoint.second))))
+        val topBottomDists = initTopBottomDist(gardenGrid)
+        val leftRightDists = initTopBottomDist(transpose(gardenGrid))
+        val counts = listOf(initDists.sumOf { it.count { d -> d <= steps && d % 2 == 0 } },
+            initDists.sumOf { it.count { d -> d <= steps && d % 2 == 1 } })
+        counter += counts[0]
 
-        fun considerGrid(i: Int, j: Int, initValues: ArrayDeque<Triple<Int, Int, Int>>) {
+        fun considerGrid(i: Int, j: Int, topRow: List<Int>, bottomRow: List<Int>, leftCol: List<Int>, rightCol: List<Int>) {
             if(visitedGrids.contains(i to j)) return
-            // compute distances for this grid
-            val distArray = dijkstra(gardenGrid, initValues)
-            // count all even values which are <= steps and have same parity as steps
-            val result = distArray.sumOf { it.count { d -> d <= steps && d % 2 == steps % 2 } }
-            counter += result
             visitedGrids.add(i to j)
-            if(result == 0) return // no chance of finding new solutions here
-            // consider neighbours
-            if(i >= 0 && !visitedGrids.contains(i+1 to j)) { // check down
-                // the top row can be initialized with the bottom row of the current grid + 1
-                val nextInit = ArrayDeque<Triple<Int, Int, Int>>()
-                for(col in distArray.indices) {
-                    val dist = distArray[0][col] + 1
-                    if(dist <= steps)
-                        nextInit.add(Triple(dist, distArray.size-1, col))
+            if(i >= 0) {
+                val newTop = bottomRow.map { it+1 }
+                val newBottom = computeOpposite(newTop, topBottomDists)
+                val newLeft = leftCol.indices.map { i -> leftCol.last() + i + 1 }
+                val newRight = rightCol.indices.map { i -> rightCol.last() + i + 1}
+                if(bottomRow.all { it <= steps }) {
+                    counter += counts[abs((i+j) % 2)]
+                    considerGrid(i+1, j, newTop, newBottom, newLeft, newRight)
+                } else {
+                    val res = computeBottomGrid(gardenGrid, bottomRow).sumOf { it.count { d -> d <= steps && d % 2 == 0 } }
+                    counter += res
+                    if(res != 0) considerGrid(i+1, j, newTop, newBottom, newLeft, newRight)
+                    if(res == 0) visitedGrids.add(i+1 to j)
                 }
-                if(nextInit.any { it.first <= steps })
-                    considerGrid(i + 1, j, nextInit)
             }
-            if(i <= 0 && !visitedGrids.contains(i-1 to j)) { // check to the up
-                // the bottom row can be initialized with the top row of the current grid + 1
-                val nextInit = ArrayDeque<Triple<Int, Int, Int>>()
-                for(col in distArray[0].indices) {
-                    val dist = distArray[distArray.size-1][col] + 1
-                    if(dist <= steps)
-                        nextInit.add(Triple(dist, 0, col))
+            if(i <= 0) {
+                val newBottom = bottomRow.map { it+1 }
+                val newTop = computeOpposite(newBottom, topBottomDists)
+                val newLeft = leftCol.indices.map { i -> leftCol.last() + i + 1 }
+                val newRight = rightCol.indices.map { i -> rightCol.last() + i + 1}
+                if(bottomRow.all { it <= steps }) {
+                    counter += counts[abs((i+j) % 2)]
+                    considerGrid(i-1, j, newTop, newBottom, newLeft, newRight)
+                } else {
+                    val res = computeTopGrid(gardenGrid, topRow).sumOf { it.count { d -> d <= steps && d % 2 == 0 } }
+                    counter += res
+                    if(res != 0) considerGrid(i-1, j, newTop, newBottom, newLeft, newRight)
+                    if(res == 0) visitedGrids.add(i-1 to j)
                 }
-                if(nextInit.any { it.first <= steps })
-                    considerGrid(i - 1, j, nextInit)
             }
-            if(j >= 0 && !visitedGrids.contains(i to j+1)) { // check right
-                // the left column can be initialized with the rightmost column of the current grid + 1
-                val nextInit = ArrayDeque<Triple<Int, Int, Int>>()
-                for(row in distArray.indices) {
-                    val dist = distArray[row][distArray[0].size-1] + 1
-                    if(dist <= steps)
-                        nextInit.add(Triple(dist, row, 0))
+            if(j >= 0) {
+                val newBottom = bottomRow.indices.map { i -> bottomRow.last() + i + 1 }
+                val newTop = bottomRow.indices.map { i -> topRow.last() + i + 1 }
+                val newLeft = rightCol.map { it+1 }
+                val newRight = computeOpposite(newLeft, leftRightDists)
+                if(newRight.all { it <= steps }) {
+                    counter += counts[abs((i+j) % 2)]
+                    considerGrid(i, j+1, newTop, newBottom, newLeft, newRight)
+                } else {
+                    val res = computeRightGrid(gardenGrid, rightCol).sumOf { it.count { d -> d <= steps && d % 2 == 0 } }
+                    counter += res
+                    if(res != 0) considerGrid(i, j+1, newTop, newBottom, newLeft, newRight)
+                    if(res == 0) visitedGrids.add(i to j+1)
                 }
-                if(nextInit.any { it.first <= steps })
-                    considerGrid(i, j+1, nextInit)
             }
-            if(j <= 0 && !visitedGrids.contains(i to j-1)) { // check left
-                // the right column can be initialized with the leftmost column of the current grid + 1
-                val nextInit = ArrayDeque<Triple<Int, Int, Int>>()
-                for(row in distArray.indices) {
-                    val dist = distArray[row][0] + 1
-                    if(dist <= steps)
-                        nextInit.add(Triple(dist, row, distArray[0].size - 1))
+            if(j <= 0) {
+                val newBottom = bottomRow.indices.map { i -> bottomRow.first() + i + 1 }
+                val newTop = bottomRow.indices.map { i -> topRow.first() + i + 1 }
+                val newRight = leftCol.map { it + 1 }
+                val newLeft = computeOpposite(newRight, leftRightDists)
+                if(newLeft.all { it <= steps }) {
+                    counter += counts[abs((i+j) % 2)]
+                    considerGrid(i, j-1, newTop, newBottom, newLeft, newRight)
+                } else {
+                    val res = computeLeftGrid(gardenGrid, leftCol).sumOf { it.count { d -> d <= steps && d % 2 == 0 } }
+                    counter += res
+                    if(res != 0) considerGrid(i, j-1, newTop, newBottom, newLeft, newRight)
+                    if(res == 0) visitedGrids.add(i to j-1)
                 }
-                if(nextInit.any { it.first <= steps })
-                    considerGrid(i, j-1, nextInit)
             }
+
         }
-        considerGrid(0, 0, ArrayDeque(setOf(Triple(0,startPoint.first, startPoint.second))))
+        considerGrid(0, 0, initDists.first().toList(), initDists.last().toList(),
+            initDists.indices.map { initDists[it][0] }, initDists.indices.map { initDists[it][initDists[0].size-1] })
         return counter
     }
 

@@ -3,7 +3,7 @@ package solutions23
 fun main() {
 
 
-    // find one-off reflection lie
+    // find one-off reflection line
     fun <A> findReflectionLine(grid: Array<Array<A>>, smudges: Int = 0): Int {
         for(i in 1 until grid.size) {
             var misses = 0

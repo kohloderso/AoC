@@ -117,7 +117,30 @@ class PipeGrid(val grid: Array<CharArray>, val startRow: Int, val startCol: Int)
         return null
     }
 
-    fun floodFillCount(paddedGrid: Array<CharArray>, startRow: Int, startCol: Int): Int {
+    /**
+     * Insert extra fields between each row and column and around the grid.
+     */
+    fun padGrid(): Array<Array<Char>> =
+        Array(grid.size*2+1) { i ->
+            Array(grid[0].size*2+1) { j ->
+                if(i % 2 == 1 && j % 2 == 1) {
+                    grid[i/2][j/2]
+                } else {
+                    // check if there is horizontal connection between two adjacent fields
+                    if(i/2-1 >= 0 && i/2+1 < grid[0].size && pipeRight(i/2-1,j/2) && pipeLeft(i/2+1,j/2)) {
+                        '-'
+                    // check if there is a vertical connection between two adjacent fields
+                    } else if(j/2-1 >= 0 && j/2+1 < grid[0].size && pipeDown(i/2,j/2-1) && pipeUp(i/2,j/2+1)) {
+                        '|'
+                    } else {
+                        '.'
+                    }
+                }
+            }
+        }
+
+    fun floodFillCount(): Int {
+        val paddedGrid = padGrid()
         var count = 0
         val queue = ArrayDeque<Pair<Int,Int>>()
         queue.add(Pair(startRow, startCol))
@@ -133,10 +156,6 @@ class PipeGrid(val grid: Array<CharArray>, val startRow: Int, val startCol: Int)
             paddedGrid[row][col] = 'O'
             // if we are inside the normal grid, increment the count
             if(row > 0 && row <= grid.size && col > 0 && col <= grid[0].size) count++
-            queue.add(Pair(row+1, col+1)) // also allow diagonal moves
-            queue.add(Pair(row-1, col-1))
-            queue.add(Pair(row-1, col+1))
-            queue.add(Pair(row+1, col-1))
             queue.add(Pair(row+1, col))
             queue.add(Pair(row-1, col))
             queue.add(Pair(row, col+1))
@@ -182,15 +201,8 @@ class PipeGrid(val grid: Array<CharArray>, val startRow: Int, val startCol: Int)
 
     fun computeInsideTiles(): Int {
         val cycleLength = findCycleLengthAndMarkCycle()
-        // put padding of width 1 around grid
-        val paddedGrid = Array(grid.size + 2) { CharArray(grid[0].size + 2) { '.' } }
-        for(i in grid.indices) {
-            for(j in grid[0].indices) {
-                paddedGrid[i+1][j+1] = grid[i][j]
-            }
-        }
         // start at upper left corner of padded grid
-        val outsideTiles = floodFillCount(paddedGrid, 0, 0)
+        val outsideTiles = floodFillCount()
         // everything that's not marked 'O' and does not belong to the cycle itself is inside
         return grid.size * grid[0].size - outsideTiles - cycleLength
     }
